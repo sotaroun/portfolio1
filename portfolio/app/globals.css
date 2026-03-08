@@ -3,32 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0a0f;
-  --surface: #111118;
-  --surface2: #1a1a24;
-  --accent: #6c63ff;
-  --accent2: #a78bfa;
-  --text: #e2e8f0;
-  --text-muted: #64748b;
-  --border: #1e1e2e;
+  --bg: #f8f7ff;
+  --surface: #ffffff;
+  --surface2: #f0eeff;
+  --accent: #7c3aed;
+  --accent2: #06b6d4;
+  --accent3: #f59e0b;
+  --text: #1e1b4b;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
-  background-color: var(--background);
+  background-color: var(--bg);
   color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* スクロールバー */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--background); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 3px; }
 
-/* Tiptap エディタ */
 .ProseMirror {
   outline: none;
   min-height: 120px;
@@ -51,7 +48,7 @@ body {
 .ProseMirror ul { list-style: disc; padding-left: 1.5rem; }
 .ProseMirror ol { list-style: decimal; padding-left: 1.5rem; }
 .ProseMirror img { max-width: 100%; border-radius: 8px; margin: 0.5rem 0; }
-.ProseMirror strong { color: var(--accent2); }
+.ProseMirror strong { color: var(--accent); }
 .ProseMirror code {
   background: var(--surface2);
   padding: 2px 6px;

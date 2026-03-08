@@ -23,9 +23,11 @@ export default async function Home() {
       <SkillsSection skills={skills ?? []} />
       <WorksSection works={works ?? []} />
 
-      {/* フッター */}
-      <footer className="py-8 text-center text-slate-600 text-sm border-t border-slate-800">
-        © {new Date().getFullYear()} {profile.name || 'Portfolio'}
+{/* フッター */}
+      <footer className="py-10 text-center text-sm"
+        style={{ background: '#1e1b4b', color: '#a5b4fc' }}>
+        <p className="font-bold text-lg text-white mb-1">{profile.name || 'Portfolio'}</p>
+        <p>© {new Date().getFullYear()} All rights reserved.</p>
       </footer>
     </main>
   )
