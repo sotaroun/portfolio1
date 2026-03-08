@@ -131,7 +131,7 @@ export default function WorksSection({ works }: { works: Work[] }) {
                     {work.thumbnail_url ? (
                       <img src={work.thumbnail_url} alt={work.title}
                         className="w-full h-full object-cover"
-                        style={{ minHeight: '110px', maxHeight: '140px' }} />
+                        style={{ minHeight: '110px' }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-3xl"
                         style={{ minHeight: '110px',
@@ -158,9 +158,10 @@ export default function WorksSection({ works }: { works: Work[] }) {
                         })}
                       </div>
                     )}
-                    <div className="text-xs leading-relaxed mb-3 line-clamp-2"
+                    <div className="text-xs leading-relaxed mb-3"
                       style={{ color: '#6b7280' }}
                       dangerouslySetInnerHTML={{ __html: work.description }} />
+
                     <div className="flex gap-2">
                       {work.site_url && (
                         <a href={work.site_url} target="_blank" rel="noopener noreferrer"
