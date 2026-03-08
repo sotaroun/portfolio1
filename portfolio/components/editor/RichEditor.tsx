@@ -45,31 +45,63 @@ export default function RichEditor({ content, onChange, placeholder = '内容を
       : 'text-slate-400 hover:text-white hover:bg-slate-700'}`
 
   return (
-    <div className="border border-slate-700 rounded-lg overflow-hidden">
-      <div className="flex items-center gap-1 px-2 py-1.5 bg-slate-800 border-b border-slate-700 flex-wrap">
+    <div style={{ border: '2px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
+      {/* ツールバー */}
+      <div className="flex items-center gap-1 px-2 py-1.5 flex-wrap"
+        style={{ background: '#f8f7ff', borderBottom: '1px solid #e5e7eb' }}>
         <button type="button" onClick={() => editor.chain().focus().toggleBold().run()}
-          className={btn(editor.isActive('bold'))}><Bold size={14} /></button>
+          className="p-1.5 rounded-lg transition-colors"
+          style={editor.isActive('bold')
+            ? { background: '#7c3aed', color: 'white' }
+            : { color: '#6b7280' }}>
+          <Bold size={14} /></button>
         <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={btn(editor.isActive('italic'))}><Italic size={14} /></button>
+          className="p-1.5 rounded-lg transition-colors"
+          style={editor.isActive('italic')
+            ? { background: '#7c3aed', color: 'white' }
+            : { color: '#6b7280' }}>
+          <Italic size={14} /></button>
         <button type="button" onClick={() => editor.chain().focus().toggleCode().run()}
-          className={btn(editor.isActive('code'))}><Code size={14} /></button>
-        <div className="w-px h-4 bg-slate-600 mx-1" />
+          className="p-1.5 rounded-lg transition-colors"
+          style={editor.isActive('code')
+            ? { background: '#7c3aed', color: 'white' }
+            : { color: '#6b7280' }}>
+          <Code size={14} /></button>
+        <div className="w-px h-4 mx-1" style={{ background: '#e5e7eb' }} />
         <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={btn(editor.isActive('heading', { level: 2 }))}><Heading2 size={14} /></button>
+          className="p-1.5 rounded-lg transition-colors"
+          style={editor.isActive('heading', { level: 2 })
+            ? { background: '#7c3aed', color: 'white' }
+            : { color: '#6b7280' }}>
+          <Heading2 size={14} /></button>
         <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={btn(editor.isActive('heading', { level: 3 }))}><Heading3 size={14} /></button>
-        <div className="w-px h-4 bg-slate-600 mx-1" />
+          className="p-1.5 rounded-lg transition-colors"
+          style={editor.isActive('heading', { level: 3 })
+            ? { background: '#7c3aed', color: 'white' }
+            : { color: '#6b7280' }}>
+          <Heading3 size={14} /></button>
+        <div className="w-px h-4 mx-1" style={{ background: '#e5e7eb' }} />
         <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={btn(editor.isActive('bulletList'))}><List size={14} /></button>
+          className="p-1.5 rounded-lg transition-colors"
+          style={editor.isActive('bulletList')
+            ? { background: '#7c3aed', color: 'white' }
+            : { color: '#6b7280' }}>
+          <List size={14} /></button>
         <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={btn(editor.isActive('orderedList'))}><ListOrdered size={14} /></button>
-        <div className="w-px h-4 bg-slate-600 mx-1" />
-        <label className={`${btn(false)} cursor-pointer`}>
+          className="p-1.5 rounded-lg transition-colors"
+          style={editor.isActive('orderedList')
+            ? { background: '#7c3aed', color: 'white' }
+            : { color: '#6b7280' }}>
+          <ListOrdered size={14} /></button>
+        <div className="w-px h-4 mx-1" style={{ background: '#e5e7eb' }} />
+        <label className="p-1.5 rounded-lg cursor-pointer transition-colors"
+          style={{ color: '#6b7280' }}>
           <ImageIcon size={14} />
           <input type="file" accept="image/*" className="hidden" onChange={uploadImage} />
         </label>
       </div>
-      <div className="bg-slate-900 min-h-[120px]">
+      {/* エディタ本体 */}
+      <div style={{ background: 'white', minHeight: '120px' }}>
         <EditorContent editor={editor} />
       </div>
     </div>

@@ -60,51 +60,61 @@ export default function AdminWorks() {
     setTimeout(() => setSaved(false), 2000)
   }
 
-  const inputClass = `w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2
-    text-white text-sm placeholder-slate-600 focus:outline-none
-    focus:border-violet-500 transition-colors`
+  const inputStyle = {
+    background: '#f8f7ff',
+    border: '2px solid #e5e7eb',
+    color: '#1e1b4b',
+    borderRadius: '10px',
+    padding: '8px 12px',
+    width: '100%',
+    fontSize: '14px',
+    outline: 'none',
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">制作物編集</h2>
+        <h2 className="text-2xl font-black" style={{ color: '#1e1b4b' }}>制作物編集</h2>
         <div className="flex gap-2">
           <button onClick={add}
-            className="flex items-center gap-2 px-4 py-2 border border-slate-600
-              hover:border-violet-500 rounded-lg text-sm text-slate-400
-              hover:text-violet-300 transition-colors">
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold
+              transition-all hover:opacity-80"
+            style={{ background: '#e0f2fe', color: '#0369a1' }}>
             <Plus size={14} />追加
           </button>
           <button onClick={save} disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-violet-600
-              hover:bg-violet-500 rounded-lg text-sm font-medium transition-colors
-              disabled:opacity-50">
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold
+              text-white shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5
+              disabled:opacity-50"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}>
             <Save size={14} />
-            {saved ? '保存しました！' : saving ? '保存中...' : '保存する'}
+            {saved ? '✅ 保存しました！' : saving ? '保存中...' : '保存する'}
           </button>
         </div>
       </div>
 
       {works.length === 0 && (
-        <div className="text-center py-12 text-slate-500 border border-dashed
-          border-slate-700 rounded-2xl">
-          「追加」ボタンで制作物を追加できます
+        <div className="text-center py-16 rounded-3xl"
+          style={{ border: '2px dashed #7dd3fc', color: '#9ca3af' }}>
+          <p className="text-4xl mb-3">🚀</p>
+          <p className="font-medium">「追加」ボタンで制作物を追加できます</p>
         </div>
       )}
 
       <div className="space-y-4">
         {works.map(work => (
-          <div key={work.id}
-            className="bg-[#111118] border border-slate-800 rounded-xl p-5 space-y-4">
+          <div key={work.id} className="rounded-2xl p-6 shadow-sm space-y-4"
+            style={{ background: 'white', border: '1px solid #e0f2fe' }}>
+
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">タイトル</label>
+              <label className="block text-xs font-semibold mb-1" style={{ color: '#6b7280' }}>タイトル</label>
               <input value={work.title}
                 onChange={e => update(work.id, 'title', e.target.value)}
-                className={inputClass} placeholder="作品名" />
+                style={inputStyle} placeholder="作品名" />
             </div>
 
             <div>
-              <label className="text-xs text-slate-500 mb-2 block">説明文</label>
+              <label className="block text-xs font-semibold mb-2" style={{ color: '#6b7280' }}>説明文</label>
               <RichEditor
                 content={work.description}
                 onChange={html => update(work.id, 'description', html)}
@@ -113,41 +123,41 @@ export default function AdminWorks() {
             </div>
 
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">
+              <label className="block text-xs font-semibold mb-1" style={{ color: '#6b7280' }}>
                 使用技術（カンマ区切り）
               </label>
               <input
                 value={work.tech_stack?.join(', ')}
                 onChange={e => update(work.id, 'tech_stack',
                   e.target.value.split(',').map(t => t.trim()).filter(Boolean))}
-                className={inputClass} placeholder="Next.js, Supabase, Vercel" />
+                style={inputStyle} placeholder="Next.js, Supabase, Vercel" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">サイトURL</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: '#6b7280' }}>サイトURL</label>
                 <input value={work.site_url}
                   onChange={e => update(work.id, 'site_url', e.target.value)}
-                  className={inputClass} placeholder="https://..." />
+                  style={inputStyle} placeholder="https://..." />
               </div>
               <div>
-                <label className="text-xs text-slate-500 mb-1 block">GitHub URL</label>
+                <label className="block text-xs font-semibold mb-1" style={{ color: '#6b7280' }}>GitHub URL</label>
                 <input value={work.github_url}
                   onChange={e => update(work.id, 'github_url', e.target.value)}
-                  className={inputClass} placeholder="https://github.com/..." />
+                  style={inputStyle} placeholder="https://github.com/..." />
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-slate-500 mb-2 block">サムネイル画像</label>
+              <label className="block text-xs font-semibold mb-2" style={{ color: '#6b7280' }}>サムネイル画像</label>
               <div className="flex items-center gap-4">
                 {work.thumbnail_url && (
                   <img src={work.thumbnail_url} alt="thumbnail"
-                    className="w-24 h-16 object-cover rounded-lg" />
+                    className="w-24 h-16 object-cover rounded-xl shadow-sm" />
                 )}
-                <label className="cursor-pointer px-4 py-2 border border-slate-600
-                  rounded-lg text-sm text-slate-400 hover:border-violet-500
-                  hover:text-violet-300 transition-colors">
+                <label className="cursor-pointer px-4 py-2 rounded-xl text-sm font-semibold
+                  transition-all hover:opacity-80"
+                  style={{ background: '#e0f2fe', color: '#0369a1' }}>
                   画像を選択
                   <input type="file" accept="image/*" className="hidden"
                     onChange={e => uploadThumbnail(work.id, e)} />
@@ -155,10 +165,10 @@ export default function AdminWorks() {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-2" style={{ borderTop: '1px solid #f0fdf4' }}>
               <button onClick={() => remove(work.id)}
-                className="flex items-center gap-1 text-xs text-slate-600
-                  hover:text-red-400 transition-colors">
+                className="flex items-center gap-1 text-xs font-medium transition-colors hover:opacity-70"
+                style={{ color: '#ef4444' }}>
                 <Trash2 size={12} />削除
               </button>
             </div>

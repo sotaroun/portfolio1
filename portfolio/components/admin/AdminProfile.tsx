@@ -43,35 +43,57 @@ export default function AdminProfile() {
     setProfile({ ...profile, avatar_url: data.publicUrl })
   }
 
-  if (!profile) return <div className="text-slate-500">読み込み中...</div>
+  if (!profile) return (
+    <div className="flex items-center justify-center py-20">
+      <div className="w-8 h-8 rounded-full border-4 animate-spin"
+        style={{ borderColor: '#7c3aed', borderTopColor: 'transparent' }} />
+    </div>
+  )
 
-  const inputClass = `w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5
-    text-white placeholder-slate-600 focus:outline-none focus:border-violet-500 transition-colors`
+  const inputStyle = {
+    background: '#f8f7ff',
+    border: '2px solid #e5e7eb',
+    color: '#1e1b4b',
+    borderRadius: '12px',
+    padding: '10px 16px',
+    width: '100%',
+    fontSize: '14px',
+    outline: 'none',
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">自己紹介編集</h2>
+        <h2 className="text-2xl font-black" style={{ color: '#1e1b4b' }}>自己紹介編集</h2>
         <button onClick={save} disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500
-            rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold
+            text-white shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5
+            disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}>
           <Save size={14} />
-          {saved ? '保存しました！' : saving ? '保存中...' : '保存する'}
+          {saved ? '✅ 保存しました！' : saving ? '保存中...' : '保存する'}
         </button>
       </div>
 
-      <div className="bg-[#111118] border border-slate-800 rounded-2xl p-6 space-y-5">
+      <div className="rounded-3xl p-6 shadow-sm space-y-5"
+        style={{ background: 'white', border: '1px solid #ede9fe' }}>
+
         {/* アバター */}
         <div>
-          <label className="text-sm text-slate-400 mb-2 block">プロフィール画像</label>
+          <label className="block text-sm font-semibold mb-3" style={{ color: '#374151' }}>
+            プロフィール画像
+          </label>
           <div className="flex items-center gap-4">
-            {profile.avatar_url && (
+            {profile.avatar_url ? (
               <img src={profile.avatar_url} alt="avatar"
-                className="w-16 h-16 rounded-full object-cover ring-2 ring-violet-500" />
+                className="w-16 h-16 rounded-2xl object-cover shadow-md" />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl"
+                style={{ background: '#ede9fe' }}>👤</div>
             )}
-            <label className="cursor-pointer px-4 py-2 border border-slate-600
-              rounded-lg text-sm text-slate-400 hover:border-violet-500
-              hover:text-violet-300 transition-colors">
+            <label className="cursor-pointer px-4 py-2 rounded-xl text-sm font-semibold
+              transition-all hover:opacity-80"
+              style={{ background: '#ede9fe', color: '#7c3aed' }}>
               画像を選択
               <input type="file" accept="image/*" className="hidden" onChange={uploadAvatar} />
             </label>
@@ -79,20 +101,21 @@ export default function AdminProfile() {
         </div>
 
         <div>
-          <label className="text-sm text-slate-400 mb-1 block">名前</label>
-          <input value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})}
-            className={inputClass} placeholder="山田 太郎" />
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151' }}>名前</label>
+          <input value={profile.name}
+            onChange={e => setProfile({...profile, name: e.target.value})}
+            style={inputStyle} placeholder="山田 太郎" />
         </div>
 
         <div>
-          <label className="text-sm text-slate-400 mb-1 block">キャッチコピー</label>
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151' }}>キャッチコピー</label>
           <input value={profile.tagline}
             onChange={e => setProfile({...profile, tagline: e.target.value})}
-            className={inputClass} placeholder="Web App Engineer（学習中）" />
+            style={inputStyle} placeholder="Web App Engineer（学習中）" />
         </div>
 
         <div>
-          <label className="text-sm text-slate-400 mb-2 block">自己紹介文</label>
+          <label className="block text-sm font-semibold mb-2" style={{ color: '#374151' }}>自己紹介文</label>
           <RichEditor
             content={profile.bio}
             onChange={html => setProfile({...profile, bio: html})}
@@ -101,17 +124,17 @@ export default function AdminProfile() {
         </div>
 
         <div>
-          <label className="text-sm text-slate-400 mb-1 block">GitHub URL</label>
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151' }}>GitHub URL</label>
           <input value={profile.github_url}
             onChange={e => setProfile({...profile, github_url: e.target.value})}
-            className={inputClass} placeholder="https://github.com/yourname" />
+            style={inputStyle} placeholder="https://github.com/yourname" />
         </div>
 
         <div>
-          <label className="text-sm text-slate-400 mb-1 block">Twitter / X URL</label>
+          <label className="block text-sm font-semibold mb-1.5" style={{ color: '#374151' }}>Twitter / X URL</label>
           <input value={profile.twitter_url}
             onChange={e => setProfile({...profile, twitter_url: e.target.value})}
-            className={inputClass} placeholder="https://x.com/yourname" />
+            style={inputStyle} placeholder="https://x.com/yourname" />
         </div>
       </div>
     </div>
