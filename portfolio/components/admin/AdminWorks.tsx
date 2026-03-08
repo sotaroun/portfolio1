@@ -148,17 +148,28 @@ export default function AdminWorks() {
               </div>
             </div>
 
-            <div>
+<div>
               <label className="block text-xs font-semibold mb-2" style={{ color: '#6b7280' }}>サムネイル画像</label>
               <div className="flex items-center gap-4">
                 {work.thumbnail_url && (
-                  <img src={work.thumbnail_url} alt="thumbnail"
-                    className="w-24 h-16 object-cover rounded-xl shadow-sm" />
+                  <div className="relative">
+                    <img src={work.thumbnail_url} alt="thumbnail"
+                      className="w-24 h-16 object-cover rounded-xl shadow-sm" />
+                    <button
+                      type="button"
+                      onClick={() => update(work.id, 'thumbnail_url', '')}
+                      className="absolute -top-2 -right-2 w-5 h-5 rounded-full text-white
+                        text-xs flex items-center justify-center shadow-md
+                        transition-all hover:scale-110"
+                      style={{ background: '#ef4444' }}>
+                      ×
+                    </button>
+                  </div>
                 )}
                 <label className="cursor-pointer px-4 py-2 rounded-xl text-sm font-semibold
                   transition-all hover:opacity-80"
                   style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                  画像を選択
+                  {work.thumbnail_url ? '画像を変更' : '画像を選択'}
                   <input type="file" accept="image/*" className="hidden"
                     onChange={e => uploadThumbnail(work.id, e)} />
                 </label>
