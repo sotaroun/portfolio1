@@ -10,71 +10,72 @@ type Profile = {
 
 export default function HeroSection({ profile }: { profile: Profile }) {
   return (
-    <section className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden"
+    <section className="relative overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #f8f7ff 0%, #ede9fe 50%, #e0f2fe 100%)' }}>
 
-      {/* 背景の丸いデコレーション */}
-      <div className="absolute top-20 left-10 w-64 h-64 rounded-full opacity-20 blur-3xl"
+      <div className="absolute top-10 left-10 w-48 h-48 rounded-full opacity-20 blur-3xl"
         style={{ background: '#7c3aed' }} />
-      <div className="absolute bottom-20 right-10 w-80 h-80 rounded-full opacity-20 blur-3xl"
+      <div className="absolute bottom-10 right-10 w-56 h-56 rounded-full opacity-20 blur-3xl"
         style={{ background: '#06b6d4' }} />
-      <div className="absolute top-1/2 left-1/2 w-48 h-48 rounded-full opacity-10 blur-2xl"
-        style={{ background: '#f59e0b' }} />
 
-      <div className="max-w-3xl w-full text-center relative z-10">
-        {/* アバター */}
-        {profile.avatar_url ? (
-          <img src={profile.avatar_url} alt={profile.name}
-            className="w-28 h-28 rounded-full mx-auto mb-6 object-cover shadow-xl"
-            style={{ border: '4px solid white' }} />
-        ) : (
-          <div className="w-28 h-28 rounded-full mx-auto mb-6 shadow-xl flex items-center
-            justify-center text-4xl font-bold text-white"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', border: '4px solid white' }}>
-            {profile.name?.charAt(0) || '?'}
-          </div>
-        )}
+      <div className="max-w-3xl mx-auto px-6 relative z-10">
 
-        {/* バッジ */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm
-          font-medium mb-4 shadow-sm"
-          style={{ background: 'white', color: '#7c3aed', border: '1px solid #ede9fe' }}>
-          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#7c3aed' }} />
-          学習中 / 未経験エンジニア
+        {/* 大見出し */}
+        <div className="py-3 mb-6 -mx-6 px-6"
+          style={{ background: 'rgba(0,0,0,0.06)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-0.5"
+            style={{ color: '#7c3aed' }}>Profile</p>
+          <h2 className="text-2xl font-black" style={{ color: '#1e1b4b' }}>自己紹介</h2>
         </div>
 
-        {/* 名前 */}
-        <h1 className="text-6xl font-black mb-4 leading-tight"
-          style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          {profile.name || 'Your Name'}
-        </h1>
-
-        {/* キャッチコピー */}
-        <p className="text-xl font-medium mb-6" style={{ color: '#6b7280' }}>
-          {profile.tagline || 'Web App Engineer（学習中）'}
-        </p>
+        {/* プロフィール横並び */}
+        <div className="flex items-center gap-6 mb-6">
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt={profile.name}
+              className="rounded-2xl object-cover shadow-lg shrink-0"
+              style={{ width: '100px', height: '100px', border: '3px solid white' }} />
+          ) : (
+            <div className="rounded-2xl shrink-0 flex items-center justify-center
+              text-3xl font-black text-white shadow-lg"
+              style={{ width: '100px', height: '100px',
+                background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                border: '3px solid white' }}>
+              {profile.name?.charAt(0) || '?'}
+            </div>
+          )}
+          <div>
+            <h1 className="text-4xl font-black leading-tight"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              {profile.name || 'Your Name'}
+            </h1>
+            <p className="text-sm font-medium mt-1" style={{ color: '#6b7280' }}>
+              {profile.tagline || 'Web App Engineer（学習中）'}
+            </p>
+          </div>
+        </div>
 
         {/* bio */}
-        <div className="rounded-2xl p-6 mb-8 text-left shadow-sm max-w-xl mx-auto"
-          style={{ background: 'white', border: '1px solid #ede9fe' }}>
-          <div className="leading-relaxed" style={{ color: '#374151' }}
-            dangerouslySetInnerHTML={{ __html: profile.bio || 'ここに自己紹介が入ります。' }} />
-        </div>
+        {profile.bio && (
+          <div className="rounded-2xl px-5 py-4 mb-5 text-sm leading-relaxed shadow-sm"
+            style={{ background: 'white', border: '1px solid #ede9fe', color: '#374151' }}
+            dangerouslySetInnerHTML={{ __html: profile.bio }} />
+        )}
 
         {/* リンク */}
-        <div className="flex gap-3 justify-center flex-wrap">
+        <div className="flex gap-2 flex-wrap pb-10">
           {profile.github_url && (
             <a href={profile.github_url} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-medium
-                shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-white"
-              style={{ background: '#1e1b4b' }}>
+              className="px-5 py-2 rounded-full text-sm font-bold shadow
+                hover:shadow-md transition-all hover:-translate-y-0.5"
+              style={{ background: 'white', color: '#1e1b4b', border: '2px solid #1e1b4b' }}>
               GitHub →
             </a>
           )}
           {profile.twitter_url && (
             <a href={profile.twitter_url} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-medium
-                shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5 text-white"
+              className="px-5 py-2 rounded-full text-sm font-bold text-white shadow
+                hover:shadow-md transition-all hover:-translate-y-0.5"
               style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}>
               Twitter / X →
             </a>
