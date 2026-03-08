@@ -41,11 +41,43 @@ export default function AdminWorks() {
   const update = (id: string, key: keyof Work, value: string | string[]) =>
     setWorks(works.map(w => w.id === id ? { ...w, [key]: value } : w))
 
-  const uploadThumbnail = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+const uploadThumbnail = async (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const path = `works/${Date.now()}.${file.name.split('.').pop()}`
-    const { error } = await supabase.storage.from('portfolio-images').upload(path, file)
+
+    // Canvas でリサイズ
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.src = objectUrl
+
+    await new Promise<void>(resolve => { img.onload = () => resolve() })
+
+    const MAX = 880
+    let { width, height } = img
+
+    if (width > MAX || height > MAX) {
+      if (width > height) {
+        height = Math.round(height * MAX / width)
+        width = MAX
+      } else {
+        width = Math.round(width * MAX / height)
+        height = MAX
+      }
+    }
+
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')!
+    ctx.drawImage(img, 0, 0, width, height)
+    URL.revokeObjectURL(objectUrl)
+
+    const blob = await new Promise<Blob>(resolve =>
+      canvas.toBlob(b => resolve(b!), 'image/webp', 0.85)
+    )
+
+    const path = `works/${Date.now()}.webp`
+    const { error } = await supabase.storage.from('portfolio-images').upload(path, blob)
     if (error) { alert('アップロード失敗'); return }
     const { data } = supabase.storage.from('portfolio-images').getPublicUrl(path)
     update(id, 'thumbnail_url', data.publicUrl)
