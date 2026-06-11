@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type Profile = {
   name: string
@@ -12,166 +12,364 @@ type Profile = {
 
 export default function HeroSection({ profile }: { profile: Profile }) {
   const [mounted, setMounted] = useState(false)
+  const orbRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
 
-useEffect(() => {
-    // 初回表示アニメーション
+  useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 100)
 
-    // タブを離れて戻ったときリセット→再アニメーション
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setMounted(false)
-      } else {
-        setTimeout(() => setMounted(true), 100)
-      }
+    // Cursor-following orb
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!orbRef.current || !sectionRef.current) return
+      const rect = sectionRef.current.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      orbRef.current.style.transform = `translate(${x - 300}px, ${y - 300}px)`
     }
-
-    // 画面外スクロールでリセット（別セクションに行って戻ったとき）
-    const handleScroll = () => {
-      const scrollY = window.scrollY
-      const windowH = window.innerHeight
-      if (scrollY > windowH * 0.8) {
-        // Heroが画面外に出たらリセット
-        setMounted(false)
-      } else if (scrollY < windowH * 0.2) {
-        // Heroが画面内に戻ったら再発動
-        setMounted(true)
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('mousemove', handleMouseMove)
 
     return () => {
       clearTimeout(timer)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('mousemove', handleMouseMove)
     }
   }, [])
 
-  const base = 'transition-all ease-out'
-
-  // 各パーツのアニメーション定義
-  const from = {
-    top:    { opacity: 0, transform: 'translateY(-60px)' },
-    bottom: { opacity: 0, transform: 'translateY(60px)' },
-    left:   { opacity: 0, transform: 'translateX(-60px)' },
-    right:  { opacity: 0, transform: 'translateX(60px)' },
-    scale:  { opacity: 0, transform: 'scale(0.7)' },
-  }
-  const to = { opacity: 1, transform: 'none' }
-
-  const anim = (
-    dir: keyof typeof from,
-    delay: number,
-    duration = 700
-  ) => ({
-    style: mounted ? { ...to, transitionDuration: `${duration}ms`, transitionDelay: `${delay}ms` }
-                   : { ...from[dir], transitionDuration: `${duration}ms` },
-    className: base,
-  })
+  const displayName = profile.name || '安部 壮一'
+  const nameChars = displayName.split('')
 
   return (
-    <section className="relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #f8f7ff 0%, #ede9fe 50%, #e0f2fe 100%)' }}>
+    <section id="hero" ref={sectionRef} style={{
+      minHeight: '100vh',
+      background: '#0A0A0F',
+      position: 'relative',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    }}>
 
-      {/* 背景装飾（スケールで登場） */}
-      <div {...anim('scale', 0, 1200)} style={{
-        ...anim('scale', 0, 1200).style,
-        position: 'absolute', top: '10%', left: '5%',
-        width: '300px', height: '300px', borderRadius: '50%',
-        background: 'radial-gradient(circle, #ede9fe, transparent 70%)',
-        opacity: mounted ? 0.5 : 0,
-        pointerEvents: 'none', zIndex: 0,
-      }} />
-      <div {...anim('scale', 200, 1200)} style={{
-        ...anim('scale', 200, 1200).style,
-        position: 'absolute', bottom: '10%', right: '5%',
-        width: '350px', height: '350px', borderRadius: '50%',
-        background: 'radial-gradient(circle, #e0f2fe, transparent 70%)',
-        opacity: mounted ? 0.5 : 0,
-        pointerEvents: 'none', zIndex: 0,
+      {/* Grid background texture */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: `
+          linear-gradient(rgba(249,115,22,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(249,115,22,0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '60px 60px',
+        pointerEvents: 'none',
       }} />
 
-      {/* グレー帯 */}
-      <div {...anim('top', 0)} style={{
-        ...anim('top', 0).style,
-        background: 'rgba(0,0,0,0.06)',
-        position: 'relative', zIndex: 1,
+      {/* Cursor-following orb */}
+      <div ref={orbRef} style={{
+        position: 'absolute',
+        width: '600px',
+        height: '600px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%)',
+        pointerEvents: 'none',
+        transition: 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        top: 0,
+        left: 0,
+        zIndex: 0,
+      }} />
+
+      {/* Static ambient orbs */}
+      <div className="animate-pulse-glow" style={{
+        position: 'absolute',
+        top: '20%',
+        right: '10%',
+        width: '350px',
+        height: '350px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+      <div className="animate-float" style={{
+        position: 'absolute',
+        bottom: '15%',
+        left: '5%',
+        width: '250px',
+        height: '250px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(251,146,60,0.06) 0%, transparent 70%)',
+        pointerEvents: 'none',
+        zIndex: 0,
+        animationDelay: '2s',
+      }} />
+
+      {/* Decorative corner lines */}
+      <div style={{
+        position: 'absolute',
+        top: '2rem',
+        left: '2rem',
+        width: '60px',
+        height: '60px',
+        borderTop: '1px solid rgba(249,115,22,0.4)',
+        borderLeft: '1px solid rgba(249,115,22,0.4)',
+        pointerEvents: 'none',
+        zIndex: 1,
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '2rem',
+        right: '2rem',
+        width: '60px',
+        height: '60px',
+        borderBottom: '1px solid rgba(249,115,22,0.4)',
+        borderRight: '1px solid rgba(249,115,22,0.4)',
+        pointerEvents: 'none',
+        zIndex: 1,
+      }} />
+
+      {/* Content */}
+      <div style={{
+        maxWidth: '900px',
+        margin: '0 auto',
+        padding: '8rem 2rem 4rem',
+        position: 'relative',
+        zIndex: 1,
       }}>
-        <div className="max-w-3xl mx-auto px-6 py-3">
-          <p className="text-xs font-bold uppercase tracking-widest mb-0.5"
-            style={{ color: '#7c3aed' }}>Profile</p>
-          <h2 className="text-4xl font-black" style={{ color: '#1e1b4b' }}>自己紹介</h2>
+
+        {/* Eyebrow label */}
+        <div style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? 'none' : 'translateY(20px)',
+          transition: 'opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          marginBottom: '1.5rem',
+        }}>
+          <span style={{
+            width: '32px',
+            height: '1px',
+            background: '#F97316',
+            display: 'block',
+          }} />
+          <span style={{
+            fontSize: '0.7rem',
+            fontWeight: 600,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: '#F97316',
+            fontFamily: 'Inter, sans-serif',
+          }}>
+            Frontend Engineer
+          </span>
         </div>
-      </div>
 
-      <div className="max-w-3xl mx-auto px-6 relative" style={{ zIndex: 1 }}>
+        {/* Name with stagger animation */}
+        <h1 className="font-display" style={{
+          fontSize: 'clamp(3rem, 8vw, 7rem)',
+          fontWeight: 800,
+          lineHeight: 1,
+          letterSpacing: '-0.04em',
+          marginBottom: '1.5rem',
+          overflow: 'hidden',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '0.1em',
+        }}>
+          {nameChars.map((char, i) => (
+            <span key={i} style={{
+              display: 'inline-block',
+              color: '#E2E8F0',
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? 'translateY(0) skewY(0deg)' : 'translateY(80px) skewY(10deg)',
+              transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${0.2 + i * 0.04}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${0.2 + i * 0.04}s`,
+            }}>
+              {char === ' ' ? '\u00A0' : char}
+            </span>
+          ))}
+        </h1>
 
-        {/* アバター＋名前（左から） */}
-        <div className={`flex items-center gap-6 mt-8 mb-6 ${base}`}
-          style={mounted
-            ? { ...to, transitionDuration: '700ms', transitionDelay: '150ms' }
-            : { ...from.left, transitionDuration: '700ms' }}>
-          {profile.avatar_url ? (
-            <img src={profile.avatar_url} alt={profile.name}
-              className="rounded-2xl object-cover shadow-lg shrink-0"
-              style={{ width: '100px', height: '100px', border: '3px solid white' }} />
-          ) : (
-            <div className="rounded-2xl shrink-0 flex items-center justify-center
-              text-3xl font-black text-white shadow-lg"
-              style={{ width: '100px', height: '100px',
-                background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-                border: '3px solid white' }}>
-              {profile.name?.charAt(0) || '?'}
+        {/* Tagline */}
+        <div style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? 'none' : 'translateY(20px)',
+          transition: 'opacity 0.7s ease 0.6s, transform 0.7s ease 0.6s',
+          marginBottom: '2rem',
+        }}>
+          <p style={{
+            fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+            color: '#64748B',
+            fontWeight: 400,
+            lineHeight: 1.5,
+            maxWidth: '560px',
+          }}>
+            {profile.tagline || 'フロントエンドエンジニア。Next.js・TypeScript・Reactを中心に、バックエンドもキャッチアップ中。'}
+          </p>
+        </div>
+
+        {/* Two-column layout: bio + avatar */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: profile.avatar_url ? '1fr auto' : '1fr',
+          gap: '2rem',
+          alignItems: 'start',
+          marginBottom: '3rem',
+        }}>
+          {/* Bio */}
+          {profile.bio && (
+            <div style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? 'none' : 'translateY(20px)',
+              transition: 'opacity 0.7s ease 0.75s, transform 0.7s ease 0.75s',
+            }}>
+              <div style={{
+                background: 'rgba(249,115,22,0.05)',
+                border: '1px solid rgba(249,115,22,0.15)',
+                borderRadius: '12px',
+                padding: '1.25rem 1.5rem',
+                fontSize: '0.9rem',
+                lineHeight: 1.8,
+                color: '#94A3B8',
+              }}
+                dangerouslySetInnerHTML={{ __html: profile.bio }}
+              />
             </div>
           )}
-          <div>
-            <h1 className="text-4xl font-black leading-tight"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {profile.name || 'Your Name'}
-            </h1>
-            <p className="text-sm font-medium mt-1" style={{ color: '#6b7280' }}>
-              {profile.tagline || 'Web App Engineer（学習中）'}
-            </p>
-          </div>
+
+          {/* Avatar */}
+          {profile.avatar_url && (
+            <div style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? 'none' : 'scale(0.8)',
+              transition: 'opacity 0.7s ease 0.5s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.5s',
+              flexShrink: 0,
+            }}>
+              <div style={{
+                position: 'relative',
+                width: '120px',
+                height: '120px',
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  inset: '-3px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #F97316, #FB923C, rgba(249,115,22,0.2))',
+                  animation: 'border-glow 2s ease-in-out infinite',
+                }} />
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.name}
+                  style={{
+                    position: 'relative',
+                    width: '120px',
+                    height: '120px',
+                    borderRadius: '14px',
+                    objectFit: 'cover',
+                    zIndex: 1,
+                    display: 'block',
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* bio（下から） */}
-        {profile.bio && (
-          <div className={base}
-            style={mounted
-              ? { ...to, transitionDuration: '700ms', transitionDelay: '300ms' }
-              : { ...from.bottom, transitionDuration: '700ms' }}>
-            <div className="rounded-2xl px-5 py-4 mb-5 text-sm leading-relaxed shadow-sm"
-              style={{ background: 'white', border: '1px solid #ede9fe', color: '#374151' }}
-              dangerouslySetInnerHTML={{ __html: profile.bio }} />
-          </div>
-        )}
-
-        {/* リンク（右から） */}
-        <div className={`flex gap-2 flex-wrap pb-10 ${base}`}
-          style={mounted
-            ? { ...to, transitionDuration: '700ms', transitionDelay: '450ms' }
-            : { ...from.right, transitionDuration: '700ms' }}>
+        {/* CTA Buttons */}
+        <div style={{
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? 'none' : 'translateY(20px)',
+          transition: 'opacity 0.7s ease 0.9s, transform 0.7s ease 0.9s',
+          display: 'flex',
+          gap: '1rem',
+          flexWrap: 'wrap',
+        }}>
           {profile.github_url && (
-            <a href={profile.github_url} target="_blank" rel="noopener noreferrer"
-              className="px-5 py-2 rounded-full text-sm font-bold shadow
-                hover:shadow-md transition-all hover:-translate-y-0.5"
-              style={{ background: 'white', color: '#1e1b4b', border: '2px solid #1e1b4b' }}>
+            <a
+              href={profile.github_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem 1.75rem',
+                background: '#F97316',
+                color: '#0A0A0F',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+                letterSpacing: '0.02em',
+                transition: 'all 0.2s ease',
+                fontFamily: 'Inter, sans-serif',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#FB923C'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(249,115,22,0.35)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = '#F97316'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
               GitHub →
             </a>
           )}
-          {profile.twitter_url && (
-            <a href={profile.twitter_url} target="_blank" rel="noopener noreferrer"
-              className="px-5 py-2 rounded-full text-sm font-bold text-white shadow
-                hover:shadow-md transition-all hover:-translate-y-0.5"
-              style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}>
-              Twitter / X →
-            </a>
-          )}
+          <a
+            href="#works"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1.75rem',
+              background: 'transparent',
+              color: '#E2E8F0',
+              borderRadius: '8px',
+              border: '1px solid rgba(226,232,240,0.2)',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              textDecoration: 'none',
+              letterSpacing: '0.02em',
+              transition: 'all 0.2s ease',
+              fontFamily: 'Inter, sans-serif',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'rgba(249,115,22,0.5)'
+              e.currentTarget.style.color = '#F97316'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'rgba(226,232,240,0.2)'
+              e.currentTarget.style.color = '#E2E8F0'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            制作物を見る
+          </a>
         </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div style={{
+        position: 'absolute',
+        bottom: '2rem',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        opacity: mounted ? 1 : 0,
+        transition: 'opacity 0.7s ease 1.2s',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem',
+        zIndex: 1,
+      }}>
+        <span style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: '#64748B', textTransform: 'uppercase' }}>
+          Scroll
+        </span>
+        <div style={{
+          width: '1px',
+          height: '40px',
+          background: 'linear-gradient(to bottom, #F97316, transparent)',
+          animation: 'fade-up 1.5s ease-in-out infinite alternate',
+        }} />
       </div>
     </section>
   )

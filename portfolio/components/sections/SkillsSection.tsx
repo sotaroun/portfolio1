@@ -9,25 +9,15 @@ type Skill = {
   description: string
 }
 
-const categoryColors: Record<string, { bg: string; text: string; dot: string }> = {
-  default:  { bg: '#ede9fe', text: '#7c3aed', dot: '#7c3aed' },
-  Frontend: { bg: '#e0f2fe', text: '#0369a1', dot: '#06b6d4' },
-  Backend:  { bg: '#fef3c7', text: '#92400e', dot: '#f59e0b' },
-  Database: { bg: '#dcfce7', text: '#166534', dot: '#22c55e' },
-  DevOps:   { bg: '#fce7f3', text: '#9d174d', dot: '#ec4899' },
-}
-
 const levelLabel = ['', '入門', '基礎', '実践', '応用', '熟練']
+const levelColor = ['', '#64748B', '#64748B', '#FB923C', '#F97316', '#FBBF24']
 
-function useInView(threshold = 0.15) {
+function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        // 入ったときON、出たときOFF → スクロールするたびに再発動
-        setInView(entry.isIntersecting)
-      },
+      ([entry]) => { if (entry.isIntersecting) setInView(true) },
       { threshold }
     )
     if (ref.current) observer.observe(ref.current)
@@ -36,146 +26,207 @@ function useInView(threshold = 0.15) {
   return { ref, inView }
 }
 
-export default function SkillsSection({ skills }: { skills: Skill[] }) {
-  const categories = [...new Set(skills.map(s => s.category))]
-  const getColor = (cat: string) => categoryColors[cat] ?? categoryColors.default
-  const { ref: headerRef, inView: headerInView } = useInView()
-  const { ref: contentRef, inView: contentInView } = useInView(0.05)
-
-  // パララックス背景用
-  const sectionRef = useRef<HTMLElement>(null)
-  const [bgY, setBgY] = useState(0)
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return
-      const rect = sectionRef.current.getBoundingClientRect()
-      setBgY(rect.top * 0.08)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
+function SkillBar({ skill, visible, delay }: { skill: Skill; visible: boolean; delay: number }) {
+  const pct = (skill.level / 5) * 100
   return (
-    <section id="skills" ref={sectionRef}
-      style={{ background: 'white', position: 'relative', overflow: 'hidden' }}>
-
-      {/* パララックス背景装飾 */}
+    <div
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateX(0)" : "translateX(-20px)",
+        transition: `
+          opacity 0.5s ease ${delay}s,
+          transform 0.5s ease ${delay}s,
+          border-color 0.2s ease
+        `,
+        padding: "0.875rem 1rem",
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid rgba(255,255,255,0.06)",
+        borderRadius: "10px",
+      }}
+      onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(249,115,22,0.3)')}
+      onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#E2E8F0', fontFamily: 'Inter, sans-serif' }}>
+          {skill.name}
+        </span>
+        <span style={{
+          fontSize: '0.65rem',
+          fontWeight: 700,
+          letterSpacing: '0.05em',
+          color: levelColor[skill.level] || '#64748B',
+          background: 'rgba(249,115,22,0.08)',
+          padding: '0.2rem 0.5rem',
+          borderRadius: '4px',
+        }}>
+          {levelLabel[skill.level]}
+        </span>
+      </div>
       <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-        transform: `translateY(${bgY}px)`,
-        transition: 'transform 0.05s linear',
+        height: '3px',
+        background: 'rgba(255,255,255,0.06)',
+        borderRadius: '2px',
+        overflow: 'hidden',
       }}>
         <div style={{
-          position: 'absolute', top: '-10%', right: '-5%',
-          width: '400px', height: '400px', borderRadius: '50%',
-          background: 'radial-gradient(circle, #ede9fe 0%, transparent 70%)',
-          opacity: 0.6,
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '10%', left: '-5%',
-          width: '300px', height: '300px', borderRadius: '50%',
-          background: 'radial-gradient(circle, #e0f2fe 0%, transparent 70%)',
-          opacity: 0.6,
+          height: '100%',
+          width: visible ? `${pct}%` : '0%',
+          background: `linear-gradient(90deg, #F97316, #FB923C)`,
+          borderRadius: '2px',
+          transition: `width 1s cubic-bezier(0.16,1,0.3,1) ${delay + 0.2}s`,
+          boxShadow: visible ? '0 0 8px rgba(249,115,22,0.5)' : 'none',
         }} />
       </div>
+    </div>
+  )
+}
 
-      {/* グレー帯（固定・アニメなし） */}
-      <div style={{ background: 'rgba(0,0,0,0.06)', position: 'relative', zIndex: 1 }}>
-        <div className="max-w-3xl mx-auto px-6 py-3">
-          <p className="text-xs font-bold uppercase tracking-widest mb-0.5"
-            style={{ color: '#7c3aed' }}>Skills</p>
-<h2 className="text-4xl font-black" style={{ color: '#1e1b4b' }}>
-            学習履歴・技術スタック
-          </h2>
-        </div>
-      </div>
+const categoryIcons: Record<string, string> = {
+  'フレームワーク': '⬡',
+  '言語': '</>',
+  'インフラ / クラウド / デプロイ': '☁',
+  'DB': '◈',
+  'Frontend': '⬡',
+  'Backend': '⚙',
+  'Database': '◈',
+  'DevOps': '☁',
+}
 
-      <div className="max-w-3xl mx-auto px-6 py-14" style={{ position: 'relative', zIndex: 1 }}>
+export default function SkillsSection({ skills }: { skills: Skill[] }) {
+  const categories = [...new Set(skills.map(s => s.category))]
+  const [activeTab, setActiveTab] = useState<string>(categories[0] ?? '')
+  const { ref: sectionRef, inView } = useInView(0.05)
 
-        {/* 見出しフェードイン */}
-        <div ref={headerRef} style={{
-          marginBottom: '2rem',
-          opacity: headerInView ? 1 : 0,
-          transform: headerInView ? 'translateY(0)' : 'translateY(40px)',
-          transition: 'opacity 0.7s ease, transform 0.7s ease',
-        }}>
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-8 rounded-full"
-              style={{ background: 'linear-gradient(#7c3aed, #06b6d4)' }} />
-            <p className="text-lg font-black" style={{ color: '#1e1b4b' }}>
-              習得中の技術スタック一覧
-            </p>
+  // update activeTab when categories load
+  useEffect(() => {
+    if (categories.length > 0 && !activeTab) setActiveTab(categories[0])
+  }, [categories.length])
+
+  const activeSkills = skills.filter(s => s.category === activeTab)
+
+  return (
+    <section id="skills" style={{
+      background: '#0D0D14',
+      position: 'relative',
+      overflow: 'hidden',
+      padding: '8rem 0',
+    }}>
+      {/* Background accent */}
+      <div style={{
+        position: 'absolute',
+        top: '-100px',
+        right: '-100px',
+        width: '500px',
+        height: '500px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(249,115,22,0.05) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
+
+        {/* Section header */}
+        <div style={{ marginBottom: '3rem' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            marginBottom: '0.75rem',
+          }}>
+            <span style={{ width: '32px', height: '1px', background: '#F97316', display: 'block' }} />
+            <span style={{
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: '#F97316',
+            }}>
+              Skills
+            </span>
           </div>
+          <h2 className="font-display" style={{
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+            fontWeight: 800,
+            color: '#E2E8F0',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.1,
+          }}>
+            技術スタック
+          </h2>
+          <p style={{ color: '#64748B', marginTop: '0.75rem', fontSize: '0.9rem' }}>
+            習得中の技術スタック一覧
+          </p>
         </div>
 
-        {categories.length === 0 && (
-          <p className="text-sm" style={{ color: '#9ca3af' }}>
+        {/* Category tabs */}
+        <div style={{
+          display: 'flex',
+          gap: '0.5rem',
+          flexWrap: 'wrap',
+          marginBottom: '2rem',
+        }}>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveTab(cat)}
+              style={{
+                padding: '0.5rem 1.25rem',
+                borderRadius: '6px',
+                border: '1px solid',
+                borderColor: activeTab === cat ? '#F97316' : 'rgba(255,255,255,0.08)',
+                background: activeTab === cat ? 'rgba(249,115,22,0.12)' : 'transparent',
+                color: activeTab === cat ? '#F97316' : '#64748B',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: '0.02em',
+              }}
+              onMouseEnter={e => {
+                if (activeTab !== cat) {
+                  e.currentTarget.style.color = '#E2E8F0'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                }
+              }}
+              onMouseLeave={e => {
+                if (activeTab !== cat) {
+                  e.currentTarget.style.color = '#64748B'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                }
+              }}
+            >
+              {categoryIcons[cat] && (
+                <span style={{ marginRight: '0.4rem', opacity: 0.8 }}>{categoryIcons[cat]}</span>
+              )}
+              {cat}
+              <span style={{
+                marginLeft: '0.5rem',
+                fontSize: '0.65rem',
+                opacity: 0.6,
+              }}>
+                {skills.filter(s => s.category === cat).length}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Skills grid */}
+        <div ref={sectionRef} style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '0.75rem',
+        }}>
+          {activeSkills.map((skill, i) => (
+            <SkillBar key={skill.id} skill={skill} visible={inView} delay={i * 0.06} />
+          ))}
+        </div>
+
+        {activeSkills.length === 0 && (
+          <p style={{ color: '#64748B', fontSize: '0.875rem', textAlign: 'center', padding: '3rem 0' }}>
             スキルがまだ登録されていません
           </p>
         )}
-
-        <div ref={contentRef} className="space-y-8">
-          {categories.map((category, ci) => {
-            const color = getColor(category)
-            return (
-              <div key={category} style={{
-                opacity: contentInView ? 1 : 0,
-                transform: contentInView ? 'translateY(0)' : 'translateY(50px)',
-                transition: `opacity 0.6s ease ${ci * 0.1}s, transform 0.6s ease ${ci * 0.1}s`,
-              }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="w-2 h-2 rounded-full shrink-0"
-                    style={{ background: color.dot }} />
-                  <h3 className="text-sm font-black uppercase tracking-wide"
-                    style={{ color: '#374151' }}>
-                    {category}
-                  </h3>
-                  <div className="flex-1 h-px" style={{ background: '#f3f4f6' }} />
-                  <span className="text-xs" style={{ color: '#9ca3af' }}>
-                    {skills.filter(s => s.category === category).length}件
-                  </span>
-                </div>
-                <div className="grid md:grid-cols-2 gap-2">
-                  {skills.filter(s => s.category === category).map((skill, si) => (
-                    <div key={skill.id}
-                      className="flex items-center justify-between rounded-xl px-4 py-3
-                        hover:shadow-sm transition-shadow"
-                      style={{
-                        background: '#fafafa',
-                        border: `1.5px solid ${color.bg}`,
-                        opacity: contentInView ? 1 : 0,
-                        transform: contentInView ? 'translateX(0)' : 'translateX(-20px)',
-                        transition: `opacity 0.5s ease ${ci * 0.1 + si * 0.05}s, transform 0.5s ease ${ci * 0.1 + si * 0.05}s`,
-                      }}>
-                      <div className="min-w-0">
-                        <p className="font-bold text-sm truncate" style={{ color: '#1e1b4b' }}>
-                          {skill.name}
-                        </p>
-                        {skill.description && (
-                          <p className="text-xs mt-0.5 truncate" style={{ color: '#9ca3af' }}>
-                            {skill.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0 ml-3">
-                        <div className="flex gap-0.5">
-                          {[1,2,3,4,5].map(i => (
-                            <div key={i} className="w-2 h-2 rounded-full"
-                              style={{ background: i <= skill.level ? color.dot : '#e5e7eb' }} />
-                          ))}
-                        </div>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full"
-                          style={{ background: color.bg, color: color.text }}>
-                          {levelLabel[skill.level]}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
       </div>
     </section>
   )

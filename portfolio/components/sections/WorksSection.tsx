@@ -11,23 +11,12 @@ type Work = {
   thumbnail_url: string
 }
 
-const tagColors = [
-  { bg: '#ede9fe', text: '#7c3aed' },
-  { bg: '#e0f2fe', text: '#0369a1' },
-  { bg: '#fef3c7', text: '#92400e' },
-  { bg: '#dcfce7', text: '#166534' },
-  { bg: '#fce7f3', text: '#9d174d' },
-]
-
-function useInView(threshold = 0.15) {
+function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        // 入ったときON、出たときOFF → スクロールするたびに再発動
-        setInView(entry.isIntersecting)
-      },
+      ([entry]) => { if (entry.isIntersecting) setInView(true) },
       { threshold }
     )
     if (ref.current) observer.observe(ref.current)
@@ -36,156 +25,313 @@ function useInView(threshold = 0.15) {
   return { ref, inView }
 }
 
-export default function WorksSection({ works }: { works: Work[] }) {
-  const { ref: headerRef, inView: headerInView } = useInView()
-  const sectionRef = useRef<HTMLElement>(null)
-  const [bgY, setBgY] = useState(0)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return
-      const rect = sectionRef.current.getBoundingClientRect()
-      setBgY(rect.top * 0.08)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+function WorkCard({ work, index }: { work: Work; index: number }) {
+  const { ref, inView } = useInView(0.1)
+  const [hovered, setHovered] = useState(false)
 
   return (
-    <section id="works" ref={sectionRef}
-      style={{ background: '#f8f7ff', position: 'relative', overflow: 'hidden' }}>
-
-      {/* パララックス背景装飾 */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-        transform: `translateY(${bgY}px)`,
-        transition: 'transform 0.05s linear',
-      }}>
+    <div ref={ref} style={{
+      opacity: inView ? 1 : 0,
+      transform: inView ? 'translateY(0)' : 'translateY(50px)',
+      transition: `opacity 0.7s ease ${index * 0.15}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${index * 0.15}s`,
+    }}>
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          background: '#111118',
+          border: '1px solid',
+          borderColor: hovered ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.06)',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          transition: 'border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
+          boxShadow: hovered ? '0 20px 60px rgba(249,115,22,0.08)' : '0 4px 20px rgba(0,0,0,0.3)',
+          transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+        }}
+      >
+        {/* Thumbnail */}
         <div style={{
-          position: 'absolute', top: '5%', left: '10%',
-          width: '350px', height: '350px', borderRadius: '50%',
-          background: 'radial-gradient(circle, #e0f2fe 0%, transparent 70%)',
-          opacity: 0.8,
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '0%', right: '5%',
-          width: '280px', height: '280px', borderRadius: '50%',
-          background: 'radial-gradient(circle, #ede9fe 0%, transparent 70%)',
-          opacity: 0.7,
-        }} />
-      </div>
-
-      {/* グレー帯（固定・アニメなし） */}
-      <div style={{ background: 'rgba(0,0,0,0.06)', position: 'relative', zIndex: 1 }}>
-        <div className="max-w-3xl mx-auto px-6 py-3">
-          <p className="text-xs font-bold uppercase tracking-widest mb-0.5"
-            style={{ color: '#06b6d4' }}>Works</p>
-          <h2 className="text-4xl font-black" style={{ color: '#1e1b4b' }}>
-            制作物・プロジェクト
-          </h2>
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-6 py-14" style={{ position: 'relative', zIndex: 1 }}>
-
-        {/* 見出しスライドイン */}
-        <div ref={headerRef} style={{
-          marginBottom: '2rem',
-          opacity: headerInView ? 1 : 0,
-          transform: headerInView ? 'translateX(0)' : 'translateX(-50px)',
-          transition: 'opacity 0.7s ease, transform 0.7s ease',
+          position: 'relative',
+          height: '220px',
+          overflow: 'hidden',
+          background: '#0D0D14',
         }}>
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-8 rounded-full"
-              style={{ background: 'linear-gradient(#06b6d4, #7c3aed)' }} />
-            <p className="text-lg font-black" style={{ color: '#1e1b4b' }}>
-              これまでに作ったもの
-            </p>
+          {work.thumbnail_url ? (
+            <img
+              src={work.thumbnail_url}
+              alt={work.title}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: hovered ? 'scale(1.05)' : 'scale(1)',
+                transition: 'transform 0.5s ease',
+              }}
+            />
+          ) : (
+            <div style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'linear-gradient(135deg, #111118, #1a1a24)',
+              fontSize: '3rem',
+            }}>
+              🚀
+            </div>
+          )}
+
+          {/* Overlay on hover */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(10,10,15,0.9) 0%, rgba(10,10,15,0.3) 50%, transparent 100%)',
+            opacity: hovered ? 1 : 0,
+            transition: 'opacity 0.3s ease',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            padding: '1.5rem',
+            gap: '0.75rem',
+          }}>
+            {work.site_url && (
+              <a
+                href={work.site_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                style={{
+                  padding: '0.5rem 1.25rem',
+                  background: '#F97316',
+                  color: '#0A0A0F',
+                  borderRadius: '6px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  transition: 'background 0.2s ease',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#FB923C')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#F97316')}
+              >
+                サイトを見る →
+              </a>
+            )}
+            {work.github_url && (
+              <a
+                href={work.github_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                style={{
+                  padding: '0.5rem 1.25rem',
+                  background: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(8px)',
+                  color: '#E2E8F0',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+              >
+                GitHub →
+              </a>
+            )}
+          </div>
+
+          {/* Index number */}
+          <div style={{
+            position: 'absolute',
+            top: '1rem',
+            right: '1rem',
+            width: '32px',
+            height: '32px',
+            borderRadius: '6px',
+            background: 'rgba(10,10,15,0.7)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(249,115,22,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+            color: '#F97316',
+            fontFamily: 'Syne, sans-serif',
+          }}>
+            {String(index + 1).padStart(2, '0')}
           </div>
         </div>
 
-        {works.length === 0 && (
-          <p className="text-sm" style={{ color: '#9ca3af' }}>
+        {/* Content */}
+        <div style={{ padding: '1.5rem' }}>
+          <h3 className="font-display" style={{
+            fontSize: '1.2rem',
+            fontWeight: 700,
+            color: '#E2E8F0',
+            marginBottom: '0.75rem',
+            letterSpacing: '-0.02em',
+          }}>
+            {work.title}
+          </h3>
+
+          {/* Tech stack */}
+          {work.tech_stack?.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.875rem' }}>
+              {work.tech_stack.map((tech) => (
+                <span key={tech} style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 600,
+                  padding: '0.25rem 0.6rem',
+                  borderRadius: '4px',
+                  background: 'rgba(249,115,22,0.08)',
+                  color: '#F97316',
+                  border: '1px solid rgba(249,115,22,0.2)',
+                  letterSpacing: '0.02em',
+                }}>
+                  {tech}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Description */}
+          <div style={{
+            fontSize: '0.85rem',
+            lineHeight: 1.7,
+            color: '#64748B',
+          }}
+            dangerouslySetInnerHTML={{ __html: work.description }}
+          />
+
+          {/* Links (desktop fallback) */}
+          <div style={{
+            display: 'flex',
+            gap: '0.75rem',
+            marginTop: '1.25rem',
+            paddingTop: '1.25rem',
+            borderTop: '1px solid rgba(255,255,255,0.05)',
+          }}>
+            {work.site_url && (
+              <a href={work.site_url} target="_blank" rel="noopener noreferrer" style={{
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                color: '#F97316',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                transition: 'opacity 0.2s ease',
+              }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              >
+                サイトを見る →
+              </a>
+            )}
+            {work.github_url && (
+              <a href={work.github_url} target="_blank" rel="noopener noreferrer" style={{
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                color: '#64748B',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+              }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#E2E8F0')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#64748B')}
+              >
+                GitHub →
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function WorksSection({ works }: { works: Work[] }) {
+  return (
+    <section id="works" style={{
+      background: '#0A0A0F',
+      position: 'relative',
+      overflow: 'hidden',
+      padding: '8rem 0',
+    }}>
+      {/* Background accent */}
+      <div style={{
+        position: 'absolute',
+        bottom: '-100px',
+        left: '-100px',
+        width: '500px',
+        height: '500px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(249,115,22,0.05) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* Horizontal rule accent */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: '2rem',
+        right: '2rem',
+        height: '1px',
+        background: 'linear-gradient(90deg, transparent, rgba(249,115,22,0.3), transparent)',
+      }} />
+
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
+
+        {/* Section header */}
+        <div style={{ marginBottom: '3rem' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            marginBottom: '0.75rem',
+          }}>
+            <span style={{ width: '32px', height: '1px', background: '#F97316', display: 'block' }} />
+            <span style={{
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: '#F97316',
+            }}>
+              Works
+            </span>
+          </div>
+          <h2 className="font-display" style={{
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+            fontWeight: 800,
+            color: '#E2E8F0',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.1,
+          }}>
+            制作物
+          </h2>
+          <p style={{ color: '#64748B', marginTop: '0.75rem', fontSize: '0.9rem' }}>
+            これまでに作ったもの
+          </p>
+        </div>
+
+        {works.length === 0 ? (
+          <p style={{ color: '#64748B', textAlign: 'center', padding: '4rem 0', fontSize: '0.875rem' }}>
             制作物がまだ登録されていません
           </p>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
+            gap: '1.5rem',
+          }}>
+            {works.map((work, i) => (
+              <WorkCard key={work.id} work={work} index={i} />
+            ))}
+          </div>
         )}
-
-        <div className="space-y-4">
-          {works.map((work, i) => {
-            const { ref: cardRef, inView: cardInView } = useInView(0.1)
-            return (
-              <div key={work.id} ref={cardRef}
-                className="rounded-2xl overflow-hidden shadow-sm hover:shadow-md
-                  transition-shadow duration-200"
-                style={{
-                  background: 'white',
-                  border: '1px solid #e5e7eb',
-                  opacity: cardInView ? 1 : 0,
-                  transform: cardInView
-                    ? 'translateY(0) scale(1)'
-                    : 'translateY(40px) scale(0.97)',
-                  transition: `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s`,
-                }}>
-                <div className="flex">
-                  <div className="shrink-0" style={{ width: '140px' }}>
-                    {work.thumbnail_url ? (
-                      <img src={work.thumbnail_url} alt={work.title}
-                        className="w-full h-full object-cover"
-                        style={{ minHeight: '110px' }} />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl"
-                        style={{ minHeight: '110px',
-                          background: 'linear-gradient(135deg, #ede9fe, #e0f2fe)' }}>
-                        🚀
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 px-4 py-3 min-w-0">
-                    <h3 className="font-black text-base mb-1" style={{ color: '#1e1b4b' }}>
-                      {work.title}
-                    </h3>
-                    {work.tech_stack?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {work.tech_stack.map((tech, ti) => {
-                          const c = tagColors[ti % tagColors.length]
-                          return (
-                            <span key={tech}
-                              className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                              style={{ background: c.bg, color: c.text }}>
-                              {tech}
-                            </span>
-                          )
-                        })}
-                      </div>
-                    )}
-                    <div className="text-xs leading-relaxed mb-3"
-                      style={{ color: '#6b7280' }}
-                      dangerouslySetInnerHTML={{ __html: work.description }} />
-
-                    <div className="flex gap-2">
-                      {work.site_url && (
-                        <a href={work.site_url} target="_blank" rel="noopener noreferrer"
-                          className="text-xs px-3 py-1.5 rounded-lg font-bold text-white
-                            transition-all hover:opacity-80"
-                          style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}>
-                          サイトを見る →
-                        </a>
-                      )}
-                      {work.github_url && (
-                        <a href={work.github_url} target="_blank" rel="noopener noreferrer"
-                          className="text-xs px-3 py-1.5 rounded-lg font-bold
-                            transition-all hover:opacity-80"
-                          style={{ background: '#f3f4f6', color: '#374151' }}>
-                          GitHub →
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
       </div>
     </section>
   )
