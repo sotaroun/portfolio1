@@ -15,24 +15,40 @@
   --border: #1e1e2e;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
 
-html { scroll-behavior: smooth; }
+html { 
+  scroll-behavior: smooth;
+}
 
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+::-webkit-scrollbar { 
+  width: 6px; 
+}
+::-webkit-scrollbar-track { 
+  background: var(--bg); 
+}
+::-webkit-scrollbar-thumb { 
+  background: var(--accent); 
+  border-radius: 3px; 
+}
 
-.font-display { font-family: 'Syne', sans-serif; }
+.font-display { 
+  font-family: 'Syne', sans-serif; 
+}
 
-/* ProseMirror editor styles (admin) */
+/* ProseMirror editor styles */
 .ProseMirror {
   outline: none;
   min-height: 120px;
@@ -40,6 +56,7 @@ body {
   color: var(--text);
   line-height: 1.7;
 }
+
 .ProseMirror p.is-editor-empty:first-child::before {
   color: var(--text-muted);
   content: attr(data-placeholder);
@@ -47,10 +64,13 @@ body {
   height: 0;
   pointer-events: none;
 }
+
 .ProseMirror h1 { font-size: 1.8rem; font-weight: 700; margin: 1rem 0 0.5rem; }
 .ProseMirror h2 { font-size: 1.4rem; font-weight: 600; margin: 0.8rem 0 0.4rem; }
+.ProseMirror h3 { font-size: 1.1rem; font-weight: 600; margin: 0.6rem 0 0.3rem; }
 .ProseMirror ul { list-style: disc; padding-left: 1.5rem; }
 .ProseMirror ol { list-style: decimal; padding-left: 1.5rem; }
+.ProseMirror img { max-width: 100%; border-radius: 8px; margin: 0.5rem 0; }
 .ProseMirror strong { color: var(--accent); }
 .ProseMirror code {
   background: var(--surface2);
@@ -70,19 +90,14 @@ body {
   50% { opacity: 0.7; transform: scale(1.05); }
 }
 
-@keyframes scan-line {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes char-in {
   0% { opacity: 0; transform: translateY(60px) skewY(8deg); }
   100% { opacity: 1; transform: translateY(0px) skewY(0deg); }
-}
-
-@keyframes fade-up {
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slide-right {

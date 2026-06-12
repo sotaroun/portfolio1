@@ -28,11 +28,11 @@ export default async function Home() {
         <footer style={{
           background: '#0A0A0F',
           borderTop: '1px solid #1e1e2e',
-          padding: '3rem 1.5rem',
+          padding: 'clamp(1.5rem, 3vw, 3rem)',
           textAlign: 'center',
         }}>
           <p className="font-display" style={{
-            fontSize: '1.25rem',
+            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
             fontWeight: 700,
             color: '#E2E8F0',
             marginBottom: '0.5rem',
@@ -40,7 +40,7 @@ export default async function Home() {
           }}>
             {profile.name || '安部 壮一'}
           </p>
-          <p style={{ color: '#64748B', fontSize: '0.8rem' }}>
+          <p style={{ color: '#64748B', fontSize: 'clamp(0.7rem, 1.2vw, 0.8rem)' }}>
             © {new Date().getFullYear()} All rights reserved.
           </p>
         </footer>

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 
 type Profile = {
   name: string
@@ -14,13 +15,15 @@ export default function HeroSection({ profile }: { profile: Profile }) {
   const [mounted, setMounted] = useState(false)
   const orbRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
+  const isMobileOrb = useMediaQuery('(max-width: 768px)')
+  const isMobileStack = useMediaQuery('(max-width: 640px)')
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 100)
 
     // Cursor-following orb
     const handleMouseMove = (e: MouseEvent) => {
-      if (!orbRef.current || !sectionRef.current) return
+      if (!orbRef.current || !sectionRef.current || isMobileOrb) return
       const rect = sectionRef.current.getBoundingClientRect()
       const x = e.clientX - rect.left
       const y = e.clientY - rect.top
@@ -32,7 +35,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
       clearTimeout(timer)
       window.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [])
+  }, [isMobileOrb])
 
   const displayName = profile.name || '安部 壮一'
   const nameChars = displayName.split('')
@@ -46,6 +49,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
+      paddingTop: 'clamp(4rem, 8vw, 6rem)',
     }}>
 
       {/* Grid background texture */}
@@ -56,31 +60,33 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           linear-gradient(rgba(249,115,22,0.03) 1px, transparent 1px),
           linear-gradient(90deg, rgba(249,115,22,0.03) 1px, transparent 1px)
         `,
-        backgroundSize: '60px 60px',
+        backgroundSize: 'clamp(40px, 10vw, 60px) clamp(40px, 10vw, 60px)',
         pointerEvents: 'none',
       }} />
 
-      {/* Cursor-following orb */}
-      <div ref={orbRef} style={{
-        position: 'absolute',
-        width: '600px',
-        height: '600px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%)',
-        pointerEvents: 'none',
-        transition: 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        top: 0,
-        left: 0,
-        zIndex: 0,
-      }} />
+      {/* Cursor-following orb - hidden on mobile */}
+      {!isMobileOrb && (
+        <div ref={orbRef} style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%)',
+          pointerEvents: 'none',
+          transition: 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          top: 0,
+          left: 0,
+          zIndex: 0,
+        }} />
+      )}
 
-      {/* Static ambient orbs */}
+      {/* Static ambient orbs - scaled for mobile */}
       <div className="animate-pulse-glow" style={{
         position: 'absolute',
         top: '20%',
         right: '10%',
-        width: '350px',
-        height: '350px',
+        width: 'clamp(150px, 40vw, 350px)',
+        height: 'clamp(150px, 40vw, 350px)',
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%)',
         pointerEvents: 'none',
@@ -90,8 +96,8 @@ export default function HeroSection({ profile }: { profile: Profile }) {
         position: 'absolute',
         bottom: '15%',
         left: '5%',
-        width: '250px',
-        height: '250px',
+        width: 'clamp(120px, 30vw, 250px)',
+        height: 'clamp(120px, 30vw, 250px)',
         borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(251,146,60,0.06) 0%, transparent 70%)',
         pointerEvents: 'none',
@@ -99,13 +105,13 @@ export default function HeroSection({ profile }: { profile: Profile }) {
         animationDelay: '2s',
       }} />
 
-      {/* Decorative corner lines */}
+      {/* Decorative corner lines - hidden on small mobile */}
       <div style={{
         position: 'absolute',
-        top: '2rem',
-        left: '2rem',
-        width: '60px',
-        height: '60px',
+        top: 'clamp(0.5rem, 2vw, 2rem)',
+        left: 'clamp(0.5rem, 2vw, 2rem)',
+        width: 'clamp(40px, 8vw, 60px)',
+        height: 'clamp(40px, 8vw, 60px)',
         borderTop: '1px solid rgba(249,115,22,0.4)',
         borderLeft: '1px solid rgba(249,115,22,0.4)',
         pointerEvents: 'none',
@@ -113,10 +119,10 @@ export default function HeroSection({ profile }: { profile: Profile }) {
       }} />
       <div style={{
         position: 'absolute',
-        bottom: '2rem',
-        right: '2rem',
-        width: '60px',
-        height: '60px',
+        bottom: 'clamp(0.5rem, 2vw, 2rem)',
+        right: 'clamp(0.5rem, 2vw, 2rem)',
+        width: 'clamp(40px, 8vw, 60px)',
+        height: 'clamp(40px, 8vw, 60px)',
         borderBottom: '1px solid rgba(249,115,22,0.4)',
         borderRight: '1px solid rgba(249,115,22,0.4)',
         pointerEvents: 'none',
@@ -127,9 +133,10 @@ export default function HeroSection({ profile }: { profile: Profile }) {
       <div style={{
         maxWidth: '900px',
         margin: '0 auto',
-        padding: '8rem 2rem 4rem',
+        padding: 'clamp(2rem, 5vw, 8rem) clamp(1.5rem, 4vw, 4rem) clamp(2rem, 5vw, 4rem)',
         position: 'relative',
         zIndex: 1,
+        width: '100%',
       }}>
 
         {/* Eyebrow label */}
@@ -140,16 +147,17 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           display: 'flex',
           alignItems: 'center',
           gap: '0.75rem',
-          marginBottom: '1.5rem',
+          marginBottom: 'clamp(0.75rem, 2vw, 1.5rem)',
+          flexWrap: 'wrap',
         }}>
           <span style={{
-            width: '32px',
+            width: 'clamp(20px, 5vw, 32px)',
             height: '1px',
             background: '#F97316',
             display: 'block',
           }} />
           <span style={{
-            fontSize: '0.7rem',
+            fontSize: 'clamp(0.6rem, 1.5vw, 0.7rem)',
             fontWeight: 600,
             letterSpacing: '0.2em',
             textTransform: 'uppercase',
@@ -162,15 +170,16 @@ export default function HeroSection({ profile }: { profile: Profile }) {
 
         {/* Name with stagger animation */}
         <h1 className="font-display" style={{
-          fontSize: 'clamp(3rem, 8vw, 7rem)',
+          fontSize: 'clamp(2rem, 9vw, 7rem)',
           fontWeight: 800,
           lineHeight: 1,
           letterSpacing: '-0.04em',
-          marginBottom: '1.5rem',
+          marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
           overflow: 'hidden',
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '0.1em',
+          gap: 'clamp(0.05em, 1vw, 0.1em)',
+          wordBreak: 'break-word',
         }}>
           {nameChars.map((char, i) => (
             <span key={i} style={{
@@ -190,10 +199,10 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           opacity: mounted ? 1 : 0,
           transform: mounted ? 'none' : 'translateY(20px)',
           transition: 'opacity 0.7s ease 0.6s, transform 0.7s ease 0.6s',
-          marginBottom: '2rem',
+          marginBottom: 'clamp(1.25rem, 3vw, 2rem)',
         }}>
           <p style={{
-            fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+            fontSize: 'clamp(0.85rem, 2vw, 1.25rem)',
             color: '#64748B',
             fontWeight: 400,
             lineHeight: 1.5,
@@ -203,13 +212,15 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           </p>
         </div>
 
-        {/* Two-column layout: bio + avatar */}
+        {/* Two-column layout: bio + avatar - stack on mobile */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: profile.avatar_url ? '1fr auto' : '1fr',
-          gap: '2rem',
+          gridTemplateColumns: isMobileStack 
+            ? '1fr' 
+            : (profile.avatar_url ? '1fr auto' : '1fr'),
+          gap: 'clamp(1rem, 3vw, 2rem)',
           alignItems: 'start',
-          marginBottom: '3rem',
+          marginBottom: 'clamp(1.5rem, 3vw, 3rem)',
         }}>
           {/* Bio */}
           {profile.bio && (
@@ -221,9 +232,9 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               <div style={{
                 background: 'rgba(249,115,22,0.05)',
                 border: '1px solid rgba(249,115,22,0.15)',
-                borderRadius: '12px',
-                padding: '1.25rem 1.5rem',
-                fontSize: '0.9rem',
+                borderRadius: 'clamp(8px, 2vw, 12px)',
+                padding: 'clamp(1rem, 2vw, 1.25rem)',
+                fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)',
                 lineHeight: 1.8,
                 color: '#94A3B8',
               }}
@@ -242,13 +253,13 @@ export default function HeroSection({ profile }: { profile: Profile }) {
             }}>
               <div style={{
                 position: 'relative',
-                width: '120px',
-                height: '120px',
+                width: 'clamp(100px, 20vw, 140px)',
+                height: 'clamp(100px, 20vw, 140px)',
               }}>
                 <div style={{
                   position: 'absolute',
                   inset: '-3px',
-                  borderRadius: '16px',
+                  borderRadius: 'clamp(12px, 3vw, 16px)',
                   background: 'linear-gradient(135deg, #F97316, #FB923C, rgba(249,115,22,0.2))',
                   animation: 'border-glow 2s ease-in-out infinite',
                 }} />
@@ -257,9 +268,9 @@ export default function HeroSection({ profile }: { profile: Profile }) {
                   alt={profile.name}
                   style={{
                     position: 'relative',
-                    width: '120px',
-                    height: '120px',
-                    borderRadius: '14px',
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 'clamp(10px, 3vw, 14px)',
                     objectFit: 'cover',
                     zIndex: 1,
                     display: 'block',
@@ -276,7 +287,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           transform: mounted ? 'none' : 'translateY(20px)',
           transition: 'opacity 0.7s ease 0.9s, transform 0.7s ease 0.9s',
           display: 'flex',
-          gap: '1rem',
+          gap: 'clamp(0.75rem, 2vw, 1rem)',
           flexWrap: 'wrap',
         }}>
           {profile.github_url && (
@@ -288,16 +299,19 @@ export default function HeroSection({ profile }: { profile: Profile }) {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                padding: '0.75rem 1.75rem',
+                padding: 'clamp(0.6rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.75rem)',
                 background: '#F97316',
                 color: '#0A0A0F',
-                borderRadius: '8px',
-                fontSize: '0.85rem',
+                borderRadius: 'clamp(6px, 1vw, 8px)',
+                fontSize: 'clamp(0.75rem, 1.2vw, 0.85rem)',
                 fontWeight: 700,
                 textDecoration: 'none',
                 letterSpacing: '0.02em',
                 transition: 'all 0.2s ease',
                 fontFamily: 'Inter, sans-serif',
+                border: 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = '#FB923C'
@@ -319,17 +333,19 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              padding: '0.75rem 1.75rem',
+              padding: 'clamp(0.6rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.75rem)',
               background: 'transparent',
               color: '#E2E8F0',
-              borderRadius: '8px',
+              borderRadius: 'clamp(6px, 1vw, 8px)',
               border: '1px solid rgba(226,232,240,0.2)',
-              fontSize: '0.85rem',
+              fontSize: 'clamp(0.75rem, 1.2vw, 0.85rem)',
               fontWeight: 600,
               textDecoration: 'none',
               letterSpacing: '0.02em',
               transition: 'all 0.2s ease',
               fontFamily: 'Inter, sans-serif',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
             }}
             onMouseEnter={e => {
               e.currentTarget.style.borderColor = 'rgba(249,115,22,0.5)'
@@ -347,30 +363,32 @@ export default function HeroSection({ profile }: { profile: Profile }) {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div style={{
-        position: 'absolute',
-        bottom: '2rem',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        opacity: mounted ? 1 : 0,
-        transition: 'opacity 0.7s ease 1.2s',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '0.5rem',
-        zIndex: 1,
-      }}>
-        <span style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: '#64748B', textTransform: 'uppercase' }}>
-          Scroll
-        </span>
+      {/* Scroll indicator - hidden on mobile */}
+      {!isMobileOrb && (
         <div style={{
-          width: '1px',
-          height: '40px',
-          background: 'linear-gradient(to bottom, #F97316, transparent)',
-          animation: 'fade-up 1.5s ease-in-out infinite alternate',
-        }} />
-      </div>
+          position: 'absolute',
+          bottom: 'clamp(1rem, 3vw, 2rem)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          opacity: mounted ? 1 : 0,
+          transition: 'opacity 0.7s ease 1.2s',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.5rem',
+          zIndex: 1,
+        }}>
+          <span style={{ fontSize: '0.6rem', letterSpacing: '0.2em', color: '#64748B', textTransform: 'uppercase' }}>
+            Scroll
+          </span>
+          <div style={{
+            width: '1px',
+            height: '40px',
+            background: 'linear-gradient(to bottom, #F97316, transparent)',
+            animation: 'fade-up 1.5s ease-in-out infinite alternate',
+          }} />
+        </div>
+      )}
     </section>
   )
 }
