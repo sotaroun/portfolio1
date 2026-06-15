@@ -131,7 +131,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
 
       {/* Content */}
       <div style={{
-        maxWidth: '900px',
+        maxWidth: '1200px',
         margin: '0 auto',
         padding: 'clamp(2rem, 5vw, 8rem) clamp(1.5rem, 4vw, 4rem) clamp(2rem, 5vw, 4rem)',
         position: 'relative',
@@ -168,98 +168,81 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           </span>
         </div>
 
-        {/* Name with stagger animation */}
-        <h1 className="font-display" style={{
-          fontSize: 'clamp(2rem, 9vw, 7rem)',
-          fontWeight: 800,
-          lineHeight: 1,
-          letterSpacing: '-0.04em',
-          marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
-          overflow: 'hidden',
+        {/* Main layout: Name + Avatar */}
+        <div style={{
           display: 'flex',
-          flexWrap: 'wrap',
-          gap: 'clamp(0.05em, 1vw, 0.1em)',
-          wordBreak: 'break-word',
-        }}>
-          {nameChars.map((char, i) => (
-            <span key={i} style={{
-              display: 'inline-block',
-              color: '#E2E8F0',
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'translateY(0) skewY(0deg)' : 'translateY(80px) skewY(10deg)',
-              transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${0.2 + i * 0.04}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${0.2 + i * 0.04}s`,
-            }}>
-              {char === ' ' ? '\u00A0' : char}
-            </span>
-          ))}
-        </h1>
-
-        {/* Tagline */}
-        <div style={{
-          opacity: mounted ? 1 : 0,
-          transform: mounted ? 'none' : 'translateY(20px)',
-          transition: 'opacity 0.7s ease 0.6s, transform 0.7s ease 0.6s',
-          marginBottom: 'clamp(1.25rem, 3vw, 2rem)',
-        }}>
-          <p style={{
-            fontSize: 'clamp(0.85rem, 2vw, 1.25rem)',
-            color: '#64748B',
-            fontWeight: 400,
-            lineHeight: 1.5,
-            maxWidth: '560px',
-          }}>
-            {profile.tagline || 'フロントエンドエンジニア。Next.js・TypeScript・Reactを中心に、バックエンドもキャッチアップ中。'}
-          </p>
-        </div>
-
-        {/* Two-column layout: bio + avatar - stack on mobile */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: isMobileStack 
-            ? '1fr' 
-            : (profile.avatar_url ? '1fr auto' : '1fr'),
-          gap: 'clamp(1rem, 3vw, 2rem)',
-          alignItems: 'start',
+          gap: isMobileStack ? 'clamp(1rem, 3vw, 2rem)' : '15vw',
+          alignItems: isMobileStack ? 'stretch' : 'flex-end',
           marginBottom: 'clamp(1.5rem, 3vw, 3rem)',
+          flexWrap: 'wrap',
         }}>
-          {/* Bio */}
-          {profile.bio && (
+          {/* Left column: Name + Tagline */}
+          <div style={{
+            flex: isMobileStack ? '1 1 100%' : '1 1 auto',
+            minWidth: 0,
+          }}>
+            {/* Name with stagger animation */}
+            <h1 className="font-display" style={{
+              fontSize: 'clamp(2rem, 9vw, 7rem)',
+              fontWeight: 800,
+              lineHeight: 1,
+              letterSpacing: '-0.04em',
+              marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 'clamp(0.05em, 1vw, 0.1em)',
+              wordBreak: 'break-word',
+            }}>
+              {nameChars.map((char, i) => (
+                <span key={i} style={{
+                  display: 'inline-block',
+                  color: '#E2E8F0',
+                  opacity: mounted ? 1 : 0,
+                  transform: mounted ? 'translateY(0) skewY(0deg)' : 'translateY(80px) skewY(10deg)',
+                  transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${0.2 + i * 0.04}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${0.2 + i * 0.04}s`,
+                }}>
+                  {char === ' ' ? '\u00A0' : char}
+                </span>
+              ))}
+            </h1>
+
+            {/* Tagline */}
             <div style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? 'none' : 'translateY(20px)',
-              transition: 'opacity 0.7s ease 0.75s, transform 0.7s ease 0.75s',
+              transition: 'opacity 0.7s ease 0.6s, transform 0.7s ease 0.6s',
             }}>
-              <div style={{
-                background: 'rgba(249,115,22,0.05)',
-                border: '1px solid rgba(249,115,22,0.15)',
-                borderRadius: 'clamp(8px, 2vw, 12px)',
-                padding: 'clamp(1rem, 2vw, 1.25rem)',
-                fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)',
-                lineHeight: 1.8,
-                color: '#94A3B8',
-              }}
-                dangerouslySetInnerHTML={{ __html: profile.bio }}
-              />
+              <p style={{
+                fontSize: 'clamp(0.85rem, 2vw, 1.25rem)',
+                color: '#64748B',
+                fontWeight: 400,
+                lineHeight: 1.5,
+                maxWidth: '560px',
+              }}>
+                {profile.tagline || 'フロントエンドエンジニア。Next.js・TypeScript・Reactを中心に、バックエンドもキャッチアップ中。'}
+              </p>
             </div>
-          )}
+          </div>
 
-          {/* Avatar */}
-          {profile.avatar_url && (
+          {/* Right column: Avatar (desktop only) */}
+          {profile.avatar_url && !isMobileStack && (
             <div style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? 'none' : 'scale(0.8)',
               transition: 'opacity 0.7s ease 0.5s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.5s',
               flexShrink: 0,
+              alignSelf: 'flex-end',
             }}>
               <div style={{
                 position: 'relative',
-                width: 'clamp(100px, 20vw, 140px)',
-                height: 'clamp(100px, 20vw, 140px)',
+                width: '140px',
+                height: '140px',
               }}>
                 <div style={{
                   position: 'absolute',
                   inset: '-3px',
-                  borderRadius: 'clamp(12px, 3vw, 16px)',
+                  borderRadius: '16px',
                   background: 'linear-gradient(135deg, #F97316, #FB923C, rgba(249,115,22,0.2))',
                   animation: 'border-glow 2s ease-in-out infinite',
                 }} />
@@ -268,9 +251,9 @@ export default function HeroSection({ profile }: { profile: Profile }) {
                   alt={profile.name}
                   style={{
                     position: 'relative',
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 'clamp(10px, 3vw, 14px)',
+                    width: '140px',
+                    height: '140px',
+                    borderRadius: '14px',
                     objectFit: 'cover',
                     zIndex: 1,
                     display: 'block',
@@ -281,6 +264,28 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           )}
         </div>
 
+        {/* Bio */}
+        {profile.bio && (
+          <div style={{
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? 'none' : 'translateY(20px)',
+            transition: 'opacity 0.7s ease 0.75s, transform 0.7s ease 0.75s',
+            maxWidth: '100%',
+          }}>
+            <div style={{
+              background: 'rgba(249,115,22,0.05)',
+              border: '1px solid rgba(249,115,22,0.15)',
+              borderRadius: 'clamp(8px, 2vw, 12px)',
+              padding: 'clamp(1rem, 2vw, 1.25rem)',
+              fontSize: 'clamp(0.75rem, 1.2vw, 0.9rem)',
+              lineHeight: 1.8,
+              color: '#94A3B8',
+            }}
+              dangerouslySetInnerHTML={{ __html: profile.bio }}
+            />
+          </div>
+        )}
+
         {/* CTA Buttons */}
         <div style={{
           opacity: mounted ? 1 : 0,
@@ -289,6 +294,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           display: 'flex',
           gap: 'clamp(0.75rem, 2vw, 1rem)',
           flexWrap: 'wrap',
+          marginTop: 'clamp(1.5rem, 3vw, 2rem)',
         }}>
           {profile.github_url && (
             <a
