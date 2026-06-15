@@ -16,7 +16,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
   const orbRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const isMobileOrb = useMediaQuery('(max-width: 768px)')
-  const isMobileStack = useMediaQuery('(max-width: 640px)')
+  const isMobile = useMediaQuery('(max-width: 640px)')
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 100)
@@ -39,6 +39,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
 
   const displayName = profile.name || '安部 壮一'
   const nameChars = displayName.split('')
+  const avatarSize = isMobile ? '100px' : '200px'
 
   return (
     <section id="hero" ref={sectionRef} style={{
@@ -105,7 +106,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
         animationDelay: '2s',
       }} />
 
-      {/* Decorative corner lines - hidden on small mobile */}
+      {/* Decorative corner lines */}
       <div style={{
         position: 'absolute',
         top: 'clamp(0.5rem, 2vw, 2rem)',
@@ -131,7 +132,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
 
       {/* Content */}
       <div style={{
-        maxWidth: '1200px',
+        maxWidth: '100%',
         margin: '0 auto',
         padding: 'clamp(2rem, 5vw, 8rem) clamp(1.5rem, 4vw, 4rem) clamp(2rem, 5vw, 4rem)',
         position: 'relative',
@@ -168,31 +169,36 @@ export default function HeroSection({ profile }: { profile: Profile }) {
           </span>
         </div>
 
-        {/* Main layout: Name + Avatar */}
+        {/* Main layout container */}
         <div style={{
-          display: 'flex',
-          gap: isMobileStack ? 'clamp(1rem, 3vw, 2rem)' : '15vw',
-          alignItems: isMobileStack ? 'stretch' : 'flex-end',
+          opacity: mounted ? 1 : 0,
+          transform: mounted ? 'none' : 'translateY(20px)',
+          transition: 'opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s',
           marginBottom: 'clamp(1.5rem, 3vw, 3rem)',
-          flexWrap: 'wrap',
         }}>
-          {/* Left column: Name + Tagline */}
+          {/* Name + Avatar row (aligned at bottom) */}
           <div style={{
-            flex: isMobileStack ? '1 1 100%' : '1 1 auto',
-            minWidth: 0,
+            display: 'flex',
+            alignItems: 'flex-end',
+            gap: '20px',
+            marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
+            width: '100%',
           }}>
-            {/* Name with stagger animation */}
+            {/* Name */}
             <h1 className="font-display" style={{
               fontSize: 'clamp(2rem, 9vw, 7rem)',
               fontWeight: 800,
               lineHeight: 1,
               letterSpacing: '-0.04em',
-              marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
-              overflow: 'hidden',
+              margin: 0,
+              marginRight: '20px',
+              overflow: 'visible',
               display: 'flex',
               flexWrap: 'wrap',
               gap: 'clamp(0.05em, 1vw, 0.1em)',
               wordBreak: 'break-word',
+              flex: '1 1 auto',
+              minWidth: 0,
             }}>
               {nameChars.map((char, i) => (
                 <span key={i} style={{
@@ -207,61 +213,54 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               ))}
             </h1>
 
-            {/* Tagline */}
-            <div style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'none' : 'translateY(20px)',
-              transition: 'opacity 0.7s ease 0.6s, transform 0.7s ease 0.6s',
-            }}>
-              <p style={{
-                fontSize: 'clamp(0.85rem, 2vw, 1.25rem)',
-                color: '#64748B',
-                fontWeight: 400,
-                lineHeight: 1.5,
-                maxWidth: '560px',
-              }}>
-                {profile.tagline || 'フロントエンドエンジニア。Next.js・TypeScript・Reactを中心に、バックエンドもキャッチアップ中。'}
-              </p>
-            </div>
-          </div>
-
-          {/* Right column: Avatar (desktop only) */}
-          {profile.avatar_url && !isMobileStack && (
-            <div style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'none' : 'scale(0.8)',
-              transition: 'opacity 0.7s ease 0.5s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.5s',
-              flexShrink: 0,
-              alignSelf: 'flex-end',
-            }}>
+            {/* Avatar - aligned with Name bottom */}
+            {profile.avatar_url && (
               <div style={{
-                position: 'relative',
-                width: '140px',
-                height: '140px',
+                flexShrink: 0,
+                alignSelf: 'flex-end',
+                marginBottom: 0,
               }}>
                 <div style={{
-                  position: 'absolute',
-                  inset: '-3px',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #F97316, #FB923C, rgba(249,115,22,0.2))',
-                  animation: 'border-glow 2s ease-in-out infinite',
-                }} />
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.name}
-                  style={{
-                    position: 'relative',
-                    width: '140px',
-                    height: '140px',
-                    borderRadius: '14px',
-                    objectFit: 'cover',
-                    zIndex: 1,
-                    display: 'block',
-                  }}
-                />
+                  position: 'relative',
+                  width: avatarSize,
+                  height: avatarSize,
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    inset: '-3px',
+                    borderRadius: isMobile ? '8px' : '12px',
+                    background: 'linear-gradient(135deg, #F97316, #FB923C, rgba(249,115,22,0.2))',
+                    animation: 'border-glow 2s ease-in-out infinite',
+                  }} />
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.name}
+                    style={{
+                      position: 'relative',
+                      width: avatarSize,
+                      height: avatarSize,
+                      borderRadius: isMobile ? '6px' : '10px',
+                      objectFit: 'cover',
+                      zIndex: 1,
+                      display: 'block',
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Tagline - separate below Name+Avatar */}
+          <p style={{
+            fontSize: 'clamp(0.85rem, 2vw, 1.25rem)',
+            color: '#64748B',
+            fontWeight: 400,
+            lineHeight: 1.5,
+            maxWidth: '100%',
+            margin: 0,
+          }}>
+            {profile.tagline || 'フロントエンドエンジニア。Next.js・TypeScript・Reactを中心に、バックエンドもキャッチアップ中。'}
+          </p>
         </div>
 
         {/* Bio */}
